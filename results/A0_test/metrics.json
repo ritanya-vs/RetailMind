@@ -1,0 +1,17 @@
+{
+  "run": "A0",
+  "components": [
+    "bm25"
+  ],
+  "split": "test",
+  "n_queries": 700,
+  "k": 100,
+  "metrics": {
+    "ndcg@10": 0.4705043130155708,
+    "ndcg@10_exact": 0.4591493176407912,
+    "mrr@10": 0.60084410430839,
+    "recall@100": 0.7726573037031168
+  },
+  "index_build_seconds": 4.7,
+  "ms_per_query": 67.16
+}

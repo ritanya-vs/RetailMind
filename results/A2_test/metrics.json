@@ -1,0 +1,18 @@
+{
+  "run": "A2",
+  "components": [
+    "bm25",
+    "dense"
+  ],
+  "split": "test",
+  "n_queries": 700,
+  "depth": 100,
+  "rrf_k": 60,
+  "metrics": {
+    "ndcg@10": 0.5074247824512648,
+    "ndcg@10_exact": 0.4960906472971944,
+    "mrr@10": 0.6418168934240364,
+    "recall@100": 0.8401252410802534
+  },
+  "seconds_total": 54.04
+}
