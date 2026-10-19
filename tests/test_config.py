@@ -24,6 +24,8 @@ def test_default_config_loads_with_expected_values():
     assert cfg.data.locale == "us"
     assert cfg.retrieval.rrf_k == 60
     assert cfg.filter.mode == "lenient"
+    assert cfg.filter.penalty == 0.5 and cfg.filter.hard_penalty == 100.0
+    assert "price" in cfg.filter.constraints
     assert cfg.rerank.top_k == 50
     assert cfg.agent.max_iterations == 2
     assert cfg.agent.min_rerank_score is None
@@ -88,3 +90,10 @@ def test_ablations_file_without_runs_is_rejected(tmp_path: Path):
     empty.write_text(yaml.safe_dump({"other": 1}), encoding="utf-8")
     with pytest.raises(ValueError):
         load_ablations(empty)
+
+
+def test_unknown_filter_constraint_is_rejected():
+    raw = _raw_default()
+    raw["filter"]["constraints"] = ["price", "weight"]
+    with pytest.raises(ValidationError):
+        Config.model_validate(raw)

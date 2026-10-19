@@ -2,8 +2,9 @@
 
 Handles brand and color (from the catalog lexicon), size and material, price limits, delivery
 limits, stock, and "without X" exclusions. It is deterministic and needs no API key. Words that
-describe the product (brand, color, size, material) stay in product_terms because they also help
-retrieval; price, delivery, stock and exclusion phrases are removed from it.
+describe the product (brand, color, size, material, and "without X" phrases) stay in product_terms
+because they help retrieval and the parser analysis found no benefit in dropping them; only price,
+delivery and stock phrases are removed. A query without such phrases comes back unchanged.
 """
 
 from __future__ import annotations
@@ -75,7 +76,7 @@ def _sizes(text: str) -> list[str]:
     return list(dict.fromkeys(found))
 
 
-def _longest_matches(words: list[str], vocabulary: frozenset[str], max_len: int) -> list[str]:
+def longest_matches(words: list[str], vocabulary: frozenset[str], max_len: int) -> list[str]:
     """Greedy left-to-right longest match of word sequences found in vocabulary."""
     found: list[str] = []
     i = 0
@@ -97,6 +98,7 @@ class QueryParser:
 
     def parse(self, query: str, query_id: str = "") -> ParsedQuery:
         text = " " + query.lower().strip() + " "
+        before = text
         price_min = price_max = None
         delivery = None
         soft: list[str] = []
@@ -130,19 +132,20 @@ class QueryParser:
             in_stock = True
             text = text.replace(m.group(0), " ")
 
+        product_terms = " ".join(text.split()) if text != before else query.strip()
+
         for word, label in _SOFT:
             if re.search(rf"\b{word}\b", text) and label not in soft:
                 soft.append(label)
 
         words = tokens(text)
         words, excluded = self._split_exclusions(words)
-        kept = " ".join(words)
 
         constraints = Constraints(
-            brand=_longest_matches(words, self.lexicon.brands, 4),
-            color=_longest_matches(words, self.lexicon.colors, 3),
+            brand=longest_matches(words, self.lexicon.brands, 4),
+            color=longest_matches(words, self.lexicon.colors, 3),
             size=_sizes(text),
-            material=_longest_matches(words, self.lexicon.materials, 2),
+            material=longest_matches(words, self.lexicon.materials, 2),
             price_min=price_min,
             price_max=price_max,
             delivery_max_days=delivery,
@@ -152,14 +155,14 @@ class QueryParser:
         return ParsedQuery(
             query_id=query_id,
             raw=query,
-            product_terms=kept,
+            product_terms=product_terms,
             constraints=constraints,
             soft_preferences=soft,
         )
 
     @staticmethod
     def _split_exclusions(words: list[str]) -> tuple[list[str], list[str]]:
-        """Remove 'without X' style phrases. Returns (remaining words, excluded words)."""
+        """Find 'without X' phrases. Returns (words outside them, the excluded words)."""
         remaining: list[str] = []
         excluded: list[str] = []
         i = 0

@@ -50,8 +50,23 @@ class RetrievalConfig(_Strict):
     rrf_k: int = Field(gt=0)
 
 
+# Constraint kinds the filter can enforce. Size and exclusions are parsed but not enforced.
+FILTER_CONSTRAINTS = frozenset({"price", "delivery", "in_stock", "brand", "color", "material"})
+
+
 class FilterConfig(_Strict):
     mode: Literal["strict", "lenient"] = "lenient"
+    penalty: float = Field(default=0.5, ge=0)  # lenient: score lost per brand/color/material miss
+    hard_penalty: float = Field(default=100.0, ge=0)  # lenient: score lost per price/delivery/stock miss
+    constraints: list[str] = Field(default_factory=lambda: sorted(FILTER_CONSTRAINTS))
+
+    @field_validator("constraints")
+    @classmethod
+    def _known_constraints(cls, value: list[str]) -> list[str]:
+        unknown = sorted(set(value) - FILTER_CONSTRAINTS)
+        if unknown:
+            raise ValueError(f"unknown constraints: {unknown}")
+        return value
 
 
 class RerankConfig(_Strict):

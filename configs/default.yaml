@@ -24,7 +24,10 @@ retrieval:
   rrf_k: 60
 
 filter:
-  mode: lenient          # strict or lenient
+  mode: lenient          # strict removes violators, lenient subtracts `penalty` per violation
+  penalty: 0.5           # lenient: score lost per brand/color/material miss (tune on dev only)
+  hard_penalty: 100.0    # lenient: score lost per price/delivery/stock miss; large = sink below
+  constraints: [price, delivery, in_stock, brand, color, material]  # which kinds to enforce
 
 rerank:
   model: cross-encoder/ms-marco-MiniLM-L-6-v2

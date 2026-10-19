@@ -105,10 +105,10 @@ def test_materials(parser):
     assert parser.parse("leather wallet").constraints.material == ["leather"]
 
 
-def test_exclusions_are_removed_from_the_product_terms(parser):
+def test_exclusions_are_found_but_kept_in_the_product_terms(parser):
     parsed = parser.parse("white desk chair without wheels")
     assert parsed.constraints.exclude_terms == ["wheels"]
-    assert parsed.product_terms == "white desk chair"
+    assert parsed.product_terms == "white desk chair without wheels"
     parsed = parser.parse("water heater not adapter")
     assert parsed.constraints.exclude_terms == ["adapter"]
     assert parser.parse("pillow with no smell").constraints.exclude_terms == ["smell"]
@@ -123,9 +123,14 @@ def test_exclusion_edge_cases(parser):
     assert c.exclude_terms == ["black"] and c.color == []
 
 
+def test_query_without_price_delivery_or_stock_phrases_is_returned_unchanged(parser):
+    query = "Men's 1.25\" Nike Shoes, Black"
+    assert parser.parse(query).product_terms == query
+
+
 def test_empty_and_symbol_queries(parser):
     assert parser.parse("").constraints.is_empty()
-    assert parser.parse("!!! ,,,").product_terms == ""
+    assert parser.parse("!!! ,,,").constraints.is_empty()
 
 
 def test_tokens_fold_accents_and_case():
