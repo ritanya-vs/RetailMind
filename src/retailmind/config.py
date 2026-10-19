@@ -57,7 +57,9 @@ FILTER_CONSTRAINTS = frozenset({"price", "delivery", "in_stock", "brand", "color
 class FilterConfig(_Strict):
     mode: Literal["strict", "lenient"] = "lenient"
     penalty: float = Field(default=0.5, ge=0)  # lenient: score lost per brand/color/material miss
-    hard_penalty: float = Field(default=100.0, ge=0)  # lenient: score lost per price/delivery/stock miss
+    hard_penalty: float = Field(
+        default=100.0, ge=0
+    )  # lenient: score lost per price/delivery/stock miss
     constraints: list[str] = Field(default_factory=lambda: sorted(FILTER_CONSTRAINTS))
 
     @field_validator("constraints")
@@ -81,9 +83,21 @@ class AgentConfig(_Strict):
 
 
 class LLMConfig(_Strict):
-    provider: str = "groq"
-    model: str | None = None
+    # Any OpenAI-compatible chat endpoint: Ollama (local or tunnelled), Groq, etc.
+    # base_url, model and the API key are normally set in .env so the ephemeral tunnel URL and the
+    # key stay out of git. The env vars LLM_BASE_URL, LLM_MODEL and LLM_API_KEY override these.
+    provider: str = "openai_compatible"
+    model: str | None = None  # e.g. "llama3.1" for Ollama, or a Groq model id
+    base_url: str | None = (
+        None  # e.g. "https://<id>.ngrok-free.app/v1" or "http://localhost:11434/v1"
+    )
+    api_key_env: str = "LLM_API_KEY"  # which env var holds the key (Ollama ignores it)
     cache_dir: str = ".cache/llm"
+    temperature: float = Field(default=0.0, ge=0)  # 0 keeps answers reproducible
+    max_tokens: int = Field(default=512, gt=0)
+    max_context_products: int = Field(default=5, gt=0)  # products shown to the LLM as evidence
+    timeout_seconds: float = Field(default=60.0, gt=0)
+    max_retries: int = Field(default=3, ge=0)  # transient tunnel/network errors are retried
 
 
 class Config(_Strict):
