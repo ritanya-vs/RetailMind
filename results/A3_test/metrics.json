@@ -1,0 +1,22 @@
+{
+  "run": "A3",
+  "components": [
+    "bm25",
+    "dense",
+    "rerank"
+  ],
+  "split": "test",
+  "n_queries": 700,
+  "depth": 100,
+  "rrf_k": 60,
+  "metrics": {
+    "ndcg@10": 0.5745532385053933,
+    "ndcg@10_exact": 0.5631051105102397,
+    "mrr@10": 0.7138922902494331,
+    "recall@100": 0.8401252410802534
+  },
+  "rerank_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+  "rerank_top_k": 50,
+  "seconds_retrieval": 78.41,
+  "seconds_rerank": 1189.07
+}
