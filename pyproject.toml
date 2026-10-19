@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "retailmind"
+version = "0.0.1"
+description = "Multi-constraint product search: hybrid retrieval, KG filtering, re-ranking, agentic loop"
+readme = "README.md"
+requires-python = ">=3.10"
+# Core dependencies only. Heavier stacks are optional extras, installed when their week starts.
+dependencies = [
+    "pydantic>=2",
+    "pyyaml",
+    "python-dotenv",
+    "pandas",
+    "pyarrow",
+    "numpy",
+    "tqdm",
+]
+
+[project.optional-dependencies]
+retrieval = ["rank_bm25", "sentence-transformers", "faiss-cpu"]
+eval = ["ranx", "ragas"]
+llm = ["groq", "spacy"]
+kg = ["networkx"]
+agent = ["langgraph"]
+demo = ["streamlit"]
+dev = ["pytest", "ruff"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests", "scripts"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

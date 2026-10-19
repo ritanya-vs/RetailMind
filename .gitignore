@@ -1,0 +1,35 @@
+# Data and indexes are rebuilt by scripts; only the folder placeholders are tracked
+data/raw/*
+data/processed/*
+data/indexes/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/indexes/.gitkeep
+
+# Secrets and caches
+.env
+.cache/
+
+# Large artifacts
+*.npy
+*.faiss
+*.pkl
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Per-run rankings are regenerable; metrics.json and per_query.json stay tracked
+results/*/run.json
