@@ -1,0 +1,42 @@
+{
+  "run": "A4",
+  "dataset": "sc",
+  "components": [
+    "bm25",
+    "dense",
+    "filter",
+    "parse",
+    "rerank"
+  ],
+  "split": "dev",
+  "n_queries": 100,
+  "depth": 100,
+  "rrf_k": 60,
+  "metrics": {
+    "ndcg@10": 0.44143432956284906,
+    "ndcg@10_exact": 0.43600925893129316,
+    "mrr@10": 0.5129365079365079,
+    "recall@100": 0.8173939393939395
+  },
+  "constraint_metrics": {
+    "violation@10": 0.5159999999999999,
+    "clean@10": 0.01
+  },
+  "filter": {
+    "mode": "lenient",
+    "penalty": 0.5,
+    "constraints": [
+      "price",
+      "delivery",
+      "in_stock",
+      "brand",
+      "color",
+      "material"
+    ]
+  },
+  "n_queries_with_constraints": 100,
+  "rerank_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+  "rerank_top_k": 50,
+  "seconds_retrieval": 18.87,
+  "seconds_rerank": 118.34
+}
