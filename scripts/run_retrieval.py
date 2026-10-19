@@ -1,8 +1,10 @@
-"""Run a retrieval-only ablation (A0 BM25, A1 dense, A2 BM25 + dense with RRF) and score it.
+"""Run an ablation up to re-ranking and score it.
+
+A0 BM25, A1 dense, A2 BM25 + dense with RRF, A3 A2 + cross-encoder re-ranking.
 
 Usage:
-    python scripts/run_retrieval.py --run A1 --split dev
     python scripts/run_retrieval.py --run A2 --split dev
+    python scripts/run_retrieval.py --run A3 --split dev
 """
 
 import argparse
@@ -14,11 +16,13 @@ import pandas as pd
 from retailmind.config import load_ablations, load_config
 from retailmind.eval.metrics import evaluate_results, load_split
 from retailmind.eval.report import print_metrics, save_run
+from retailmind.rerank.cross_encoder import CrossEncoderScorer, Reranker
 from retailmind.retrieval.bm25 import BM25Retriever
 from retailmind.retrieval.dense import DenseRetriever, SentenceTransformerEncoder
 from retailmind.retrieval.fusion import rrf
 
 RETRIEVAL_COMPONENTS = {"bm25", "dense"}
+SUPPORTED_COMPONENTS = RETRIEVAL_COMPONENTS | {"rerank"}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -32,9 +36,13 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Unknown run {args.run!r}; choose from {sorted(runs)}", file=sys.stderr)
         return 1
     components = set(runs[args.run].components)
-    if not components <= RETRIEVAL_COMPONENTS:
-        extra = sorted(components - RETRIEVAL_COMPONENTS)
+    if not components <= SUPPORTED_COMPONENTS:
+        extra = sorted(components - SUPPORTED_COMPONENTS)
         print(f"{args.run} needs components not built yet: {extra}", file=sys.stderr)
+        return 1
+
+    if not components & RETRIEVAL_COMPONENTS:
+        print(f"{args.run} has nothing to retrieve with (needs bm25 and/or dense)", file=sys.stderr)
         return 1
 
     cfg = load_config()
@@ -77,7 +85,15 @@ def main(argv: list[str] | None = None) -> int:
             rrf(rankings, k=cfg.retrieval.rrf_k, top_k=depth)
             for rankings in zip(*lists, strict=True)
         ]
-    seconds = time.perf_counter() - start
+    retrieval_seconds = time.perf_counter() - start
+
+    rerank_seconds = 0.0
+    if "rerank" in components:
+        start = time.perf_counter()
+        scorer = CrossEncoderScorer(cfg.rerank.model)
+        reranker = Reranker(scorer, dict(zip(ids, products["text"], strict=True)))
+        per_query = reranker.rerank_batch(texts, per_query, cfg.rerank.top_k, show_progress=True)
+        rerank_seconds = time.perf_counter() - start
 
     results = dict(zip(query_ids, per_query, strict=True))
     means, by_query = evaluate_results(results, qrels)
@@ -89,12 +105,16 @@ def main(argv: list[str] | None = None) -> int:
         "depth": depth,
         "rrf_k": cfg.retrieval.rrf_k if len(lists) > 1 else None,
         "metrics": means,
-        "seconds_total": round(seconds, 2),
+        "rerank_model": cfg.rerank.model if "rerank" in components else None,
+        "rerank_top_k": cfg.rerank.top_k if "rerank" in components else None,
+        "seconds_retrieval": round(retrieval_seconds, 2),
+        "seconds_rerank": round(rerank_seconds, 2),
     }
     save_run(out_dir, report, by_query, results)
     title = f"{args.run} ({runs[args.run].description}) on {len(queries)} {args.split} queries"
     print_metrics(title, means)
-    print(f"  {seconds:.1f}s total. Saved to {out_dir}")
+    print(f"  {retrieval_seconds:.1f}s retrieval + {rerank_seconds:.1f}s re-ranking")
+    print(f"Saved to {out_dir}")
     return 0
 
 
