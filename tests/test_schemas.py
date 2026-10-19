@@ -88,3 +88,7 @@ def test_pipeline_response_defaults_and_json_round_trip():
 
     restored = PipelineResponse.model_validate(json.loads(response.model_dump_json()))
     assert restored == response
+
+
+def test_exclude_terms_count_as_active():
+    assert Constraints(exclude_terms=["needle"]).active() == ["exclude"]

@@ -19,6 +19,7 @@ class Constraints(BaseModel):
     price_max: float | None = Field(default=None, ge=0)
     delivery_max_days: int | None = Field(default=None, ge=0)
     in_stock_only: bool = False
+    exclude_terms: list[str] = Field(default_factory=list)  # words the product text must not have
 
     @model_validator(mode="after")
     def _price_range_is_ordered(self) -> Constraints:
@@ -39,6 +40,8 @@ class Constraints(BaseModel):
             names.append("delivery")
         if self.in_stock_only:
             names.append("in_stock")
+        if self.exclude_terms:
+            names.append("exclude")
         return names
 
     def is_empty(self) -> bool:
