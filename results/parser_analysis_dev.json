@@ -1,0 +1,91 @@
+{
+  "split": "dev",
+  "n_queries": 300,
+  "coverage": {
+    "brand": 42,
+    "color": 35,
+    "size": 23,
+    "material": 9,
+    "price": 0,
+    "delivery": 0,
+    "in_stock": 0,
+    "exclude": 16
+  },
+  "agreement": {
+    "brand": {
+      "queries": 42,
+      "rates": {
+        "E": 0.544,
+        "S": 0.381,
+        "C": 0.353,
+        "I": 0.613
+      },
+      "rates_with_text": {
+        "E": 0.646,
+        "S": 0.433,
+        "C": 0.608,
+        "I": 0.7
+      }
+    },
+    "color": {
+      "queries": 35,
+      "rates": {
+        "E": 0.532,
+        "S": 0.42,
+        "C": 0.286,
+        "I": 0.333
+      },
+      "rates_with_text": {
+        "E": 0.713,
+        "S": 0.532,
+        "C": 0.571,
+        "I": 0.431
+      }
+    },
+    "size": {
+      "queries": 23,
+      "rates": {
+        "E": 0.188,
+        "S": 0.062,
+        "C": 0.143,
+        "I": 0.064
+      },
+      "rates_with_text": {
+        "E": 0.188,
+        "S": 0.062,
+        "C": 0.143,
+        "I": 0.064
+      }
+    },
+    "material": {
+      "queries": 9,
+      "rates": {
+        "E": 0.963,
+        "S": 0.681,
+        "C": 0.286,
+        "I": 0.677
+      },
+      "rates_with_text": {
+        "E": 0.963,
+        "S": 0.681,
+        "C": 0.286,
+        "I": 0.677
+      }
+    },
+    "exclude_terms": {
+      "queries": 16,
+      "rates": {
+        "E": 0.472,
+        "S": 0.511,
+        "C": 0.2,
+        "I": 0.505
+      },
+      "rates_with_text": {
+        "E": 0.472,
+        "S": 0.511,
+        "C": 0.2,
+        "I": 0.505
+      }
+    }
+  }
+}
