@@ -1,0 +1,26 @@
+# Which pipeline components are switched on for each evaluation run.
+# Component names: bm25, dense, parse, decompose, filter, rerank, agent, generate.
+# bm25 and dense together imply RRF fusion.
+
+runs:
+  A0:
+    description: BM25 baseline
+    components: [bm25]
+  A1:
+    description: Dense retrieval alone
+    components: [dense]
+  A2:
+    description: BM25 + dense with RRF
+    components: [bm25, dense]
+  A3:
+    description: A2 + cross-encoder re-ranking
+    components: [bm25, dense, rerank]
+  A4:
+    description: A3 + query parser and KG filter
+    components: [bm25, dense, rerank, parse, filter]
+  A5:
+    description: A4 + query decomposition
+    components: [bm25, dense, rerank, parse, filter, decompose]
+  A6:
+    description: Full system with agent loop and grounded generation
+    components: [bm25, dense, rerank, parse, filter, decompose, agent, generate]

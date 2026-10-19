@@ -1,0 +1,41 @@
+# All paths are relative to the repository root.
+# Numeric defaults below are starting points; tune them on ESCI-dev only.
+
+paths:
+  raw_dir: data/raw
+  processed_dir: data/processed
+  index_dir: data/indexes
+  results_dir: results
+  cache_dir: .cache
+
+data:
+  locale: us
+  small_version: true
+  n_dev: 300
+  n_test: 700
+  seed: 42
+  text_max_chars: 2000       # searchable text per product is cut to this length
+  corpus_distractors: 10000  # extra products added to the corpus besides the judged ones
+
+retrieval:
+  bm25_k: 100
+  dense_model: sentence-transformers/all-MiniLM-L6-v2
+  dense_k: 100
+  rrf_k: 60
+
+filter:
+  mode: lenient          # strict or lenient
+
+rerank:
+  model: cross-encoder/ms-marco-MiniLM-L-6-v2
+  top_k: 50
+
+agent:
+  min_good_results: 3
+  min_rerank_score: null # set from ESCI-dev
+  max_iterations: 2
+
+llm:
+  provider: groq
+  model: null            # set at setup from Groq's current model list
+  cache_dir: .cache/llm
