@@ -44,6 +44,18 @@ docs/        report and figures
 app/         Streamlit demo
 ```
 
+## Web UI
+
+```powershell
+pip install -e ".[demo]"
+python app/server.py        # http://127.0.0.1:8000
+```
+
+With the ESCI data built (`data/processed/`), the UI runs the real pipeline for any ablation run
+A0-A6 (LLM stages need `LLM_*` in `.env`). Without it, it falls back to a demo mode that runs the
+real parser, BM25, knowledge graph and filter on a 60-product sample catalogue. Set
+`RETAILMIND_MODE=demo` to force that. The Evaluation tab reads `results/`.
+
 ## Git workflow
 
 - `main` always runs. Work happens on `feat/<stage>-<topic>` branches, merged by pull request

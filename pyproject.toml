@@ -25,7 +25,7 @@ eval = ["ranx", "ragas"]
 llm = ["groq", "spacy"]
 kg = ["networkx"]
 agent = ["langgraph"]
-demo = ["streamlit"]
+demo = ["fastapi", "uvicorn"]
 dev = ["pytest", "ruff"]
 
 [tool.setuptools.packages.find]
